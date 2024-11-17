@@ -128,3 +128,15 @@ def R4w = gxClose + rangew * (1.1) / 2;
 def R3w = gxClose + rangew * (1.1) / 4;
 def S3w = gxClose - rangew * (1.1) / 4;
 def S4w = gxClose - rangew * (1.1) / 2;
+
+# Scaner Conditions
+def closeTwoDaysAgo = close(period = "Day")[2];
+def closePrevDay = close(period = "Day")[1];
+def isLowRange =  closePrevDay < closeTwoDaysAgo;
+def isHigherRange = closePrevDay > closeTwoDaysAgo;
+
+def priceOffset = 0.2
+def R3Offset = R3 - priceOffset;
+def R3wOffset = R3w - priceOffset;
+
+isLowRange and (high is greater than R3Offset or high is greater than R3wOffset)
