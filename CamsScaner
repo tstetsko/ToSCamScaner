@@ -55,7 +55,7 @@ def currentPrice = close();
 def ATR5Percent = ATR * 0.05;
 def ATR20Percent = ATR * 0.2;
 
-def ATRCondition = ART > 1;
+def ATRCondition = ATR > 1;
 
 # R3 scan Conditions defenition
 def R3ScanStartRange = R3 - ATR5Percent;
