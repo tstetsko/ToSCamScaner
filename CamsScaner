@@ -88,7 +88,4 @@ def openBelowS3 = high < S3 and currentPrice < S3 and currentPrice > S4;
 def openBelowS3scanConditions = isHigherRange and openBelowS3;
 
 #scan
-plot scanCondition = R3scanConditions 
-    or S3scanConditions
-    or openAboveR3scanConditions
-    or openBelowS3scanConditions;
+plot scanCondition = ATRCondition and (R3scanConditions or S3scanConditions);
