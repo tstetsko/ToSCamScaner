@@ -50,14 +50,16 @@ def closeTwoDaysAgo = close(period = "Day")[2];
 def closePrevDay = close(period = "Day")[1];
 def isLowRange =  closePrevDay < closeTwoDaysAgo;
 def isHigherRange = closePrevDay > closeTwoDaysAgo;
+def currentPrice = close();
 
 def ATR5Percent = ATR * 0.05;
 def ATR20Percent = ATR * 0.2;
 
+def ATRCondition = ART > 1;
+
 # R3 scan Conditions defenition
 def R3ScanStartRange = R3 - ATR5Percent;
 def R3ScanEndFilter = high < R3 + ATR5Percent;
-def currentPrice = close();
 def R3InitialVolatilityLimit = low > open - ATR20Percent;
 #def R3DirectionalMoveFilter = low > S3 and R3InitialVolatilityLimit;
 def R3DirectionalMoveFilter = low > S3;
