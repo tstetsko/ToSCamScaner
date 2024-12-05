@@ -1,0 +1,32 @@
+# Moving Average Crossover With Arrows, Alerts, Crossing Count and Bubble at Cross
+# Mobius
+# Chat Room Request 01.25.2017
+# Modified a bit by BenTen
+
+input price = close;
+input fastLength = 8;
+input slowLength = 21;
+input averageType = AverageType.EXPONENTIAL;
+input alertMe = yes;
+
+plot FastMA = MovingAverage(averageType, price, fastLength);
+plot SlowMA = MovingAverage(averageType, price, slowLength);
+FastMA.SetDefaultColor(GetColor(1));
+SlowMA.SetDefaultColor(GetColor(2));
+
+plot ArrowUp = if FastMA crosses above SlowMA
+               then low
+               else double.nan;
+     ArrowUP.SetPaintingStrategy(PaintingStrategy.Arrow_UP);
+     ArrowUP.SetLineWeight(3);
+     ArrowUP.SetDefaultColor(Color.Green);
+plot ArrowDN = if FastMA crosses below SlowMA
+               then high
+               else double.nan;
+     ArrowDN.SetPaintingStrategy(PaintingStrategy.Arrow_DOWN);
+     ArrowDN.SetLineWeight(3);
+     ArrowDN.SetDefaultColor(Color.Red);
+Alert(alertMe and ArrowUp, " ", Alert.Bar, Sound.Chimes);
+Alert(alertMe and ArrowDN, " ", Alert.Bar, Sound.Bell);
+AddCloud(FastMA, SlowMA, Color.GREEN, Color.RED);
+# End Code

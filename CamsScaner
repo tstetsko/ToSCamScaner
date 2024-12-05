@@ -68,10 +68,6 @@ def R3scanConditions = isLowRange
     and currentPrice > R3ScanStartRange 
     and R3ScanEndFilter;
 
-#open above R3
-def openAboveR3 = low > R3 and currentPrice > R3 and currentPrice < R4; 
-def openAboveR3scanConditions = isLowRange and openAboveR3;
-
 #S3 scan Conditions defenition
 def S3ScanStartRange = S3 + ATR5Percent;
 def S3ScanEndFilter = low > S3 - ATR5Percent;
@@ -83,8 +79,13 @@ def S3scanConditions = isHigherRange
     and currentPrice < S3ScanStartRange 
     and S3ScanEndFilter;
 
+#open above R3
+def openAboveR3 = low > R3 and currentPrice > R3 and currentPrice < R4 and high < R4; 
+def openAboveR3scanConditions = isLowRange and openAboveR3;
+
+
 #openBelow S3
-def openBelowS3 = high < S3 and currentPrice < S3 and currentPrice > S4; 
+def openBelowS3 = high < S3 and currentPrice < S3 and currentPrice > S4 and low > S4; 
 def openBelowS3scanConditions = isHigherRange and openBelowS3;
 
 #scan

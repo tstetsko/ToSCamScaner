@@ -1,0 +1,15 @@
+# BollingerBands 50 ema 3 deviation Scaner
+
+#stoc conditions
+def volumeCondition = volume > 500000;
+def minPriceCondition = close > 20;
+def avgVolume = Average(volume, 60);
+def avgVolumeCondition = avgVolume > 3000000;
+
+# scan conditions
+def uperBandCondition = high > BollingerBands("length" = 50, "num dev dn" = -3.0, "num dev up" = 3.0, "average type" = "EXPONENTIAL")."UpperBand";
+def lowerBandCondition = low < BollingerBands("length" = 50, "num dev dn" = -3.0, "num dev up" = 3.0, "average type" = "EXPONENTIAL")."LowerBand";
+
+
+#scan
+plot scanCondition = volumeCondition and minPriceCondition and avgVolumeCondition and (uperBandCondition or lowerBandCondition);
