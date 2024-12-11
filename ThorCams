@@ -433,11 +433,11 @@ def isAfterHours = currentTime > RegularTradingEnd(today);
 def isMarketOpen = !isPreMarket && !isAfterHours;
 def pretime = isPreMarket or isAfterHours;
 
-# Get the close of two days ago --- I added this (Leslie)
-def closeTwoDaysAgo = close(period = "Day")[2];
+# Get the close of two periods ago
+def closeTwoPeriodsAgo = close(period = aggregationPeriod)[2];
 
 # Get the close of the previous day
-def closePrevDay = close(period = "Day")[1];
+def closePrevPeriod = close(period = aggregationPeriod)[1];
 
 # Get Today's Values
 ##########################################################################################
@@ -510,12 +510,12 @@ AddLabel (PMD_Indicator_Label, if wPMD then "w/PMD" else "w/o PMD", if wPMD then
 #Wide vs Narrow Label
 AddLabel(yes, if isWideRangeDay then "Wide" else "Narrow", if isWideRangeDay then GlobalColor("Wide Day Label Color") else GlobalColor("Narrow Day Label Color"));
 
-# Range Day Type
-AddLabel(yes, if closePrevDay > closeTwoDaysAgo then "Cams: Higher Range"
-         else if closePrevDay < closeTwoDaysAgo then "Cams: Lower Range"
+# Period Range Type
+AddLabel(yes, if closePrevPeriod > closeTwoPeriodsAgo then "Cams: Higher Range"
+         else if closePrevPeriod < closeTwoPeriodsAgo then "Cams: Lower Range"
          else "Cams: Neutral Range",
-         if closePrevDay > closeTwoDaysAgo then GlobalColor("Cams Higher Range Label Color")
-         else if closePrevDay < closeTwoDaysAgo then GlobalColor("Cams Lower Range Label Color")
+         if closePrevPeriod > closeTwoPeriodsAgo then GlobalColor("Cams Higher Range Label Color")
+         else if closePrevPeriod < closeTwoPeriodsAgo then GlobalColor("Cams Lower Range Label Color")
          else GlobalColor("Cams Neutral Range Label Color"));
 
 #ATR Label
