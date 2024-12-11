@@ -1,0 +1,128 @@
+# Thor's Camarilla Pivot Month Only
+# Wiinii
+# v1.5
+# Based on Thor's book 'A Complete Day Trading System' to include R5 & S5, levels colored accordingly, CAMS with pre-market data, Central Pivot + Floor Pivots 3&4, and label to easily tell you if you should use With or W/O Premarket Data and option only to show the cams based on that!
+# Some code based on code by SleepyZ & Nube
+# https://usethinkscript.com/threads/pivot-day-trading-system-for-thinkorswim.12988/
+# now with Thor's defaults
+
+declare once_per_bar;
+
+input aggregationPeriod = {default "MONTH"};
+input length = 1;
+input ShowBubbles = yes;
+input ShowPricesInBubbles = yes;
+input locate_bubbles_at = {default Expansion, Time};
+input locate_bubbles_at_time = 600;
+input BarsFromExpansion = 2;
+input PMD_Indicator_Label = yes;
+
+input lines = {default horizontal, dashes, points, triangles, squares};
+input HasNoGlobeX = no;
+
+Assert(length > 0, "'length' should be positive: " + length);
+
+def timeopen = SecondsFromTime(locate_bubbles_at_time) == 0;
+def isExpansion = locate_bubbles_at == locate_bubbles_at.Expansion and IsNaN(close);
+def firstExpansionBar = if !IsNaN(close[-1]) and isExpansion then 1 else if isExpansion then firstExpansionBar[1] + 1 else 0;
+def BubbleLocation = if locate_bubbles_at == locate_bubbles_at.Time then timeopen else isExpansion and firstExpansionBar == BarsFromExpansion;
+
+def yyyymmdd = GetYYYYMMDD();
+def month = GetYear() * 12 + GetMonth();
+def day_number = DaysFromDate(First(yyyymmdd)) + GetDayOfWeek(First(yyyymmdd));
+def period = Floor(month - First(month));
+
+def count = CompoundValue(1, if period != period[1] then (count[1] + period - period[1]) % length else count[1], 0);
+def start =  CompoundValue(1, count < count[1] + period - period[1], yes);
+def highValue = if start then Highest(high(period = aggregationPeriod), length)[1] else if highValue[1] != 0 then highValue[1] else Double.NaN;
+def lowValue = if start then Lowest(low(period = aggregationPeriod), length)[1] else if lowValue[1] != 0 then lowValue[1] else Double.NaN;
+def closeValue = if start then close(period = aggregationPeriod)[1] else closeValue[1];
+def range = highValue - lowValue;
+
+#WITHOUT PM DATA ----------------------------------------------------------
+
+plot R6 = (highValue / lowValue) * closeValue;
+
+plot R4a = closeValue + range * (1.098) / 2;
+plot R4 = closeValue + range * (1.1) / 2;
+plot R3 = closeValue + range * (1.1) / 4;
+
+plot S3 = closeValue - range * (1.1) / 4;
+plot S4 = closeValue - range * (1.1) / 2;
+plot S4a = closeValue - range * (1.098) / 2;
+
+plot S6 = (closeValue - (R6 - closeValue));
+
+R6.setlineWeight(4);
+R4.setlineWeight(4);
+R3.setlineWeight(4);
+S6.setlineWeight(4);
+S4.setlineWeight(4);
+S3.setlineWeight(4);
+
+R6.SetDefaultColor(Color.RED);
+R4.SetDefaultColor(Color.GREEN);
+R4a.SetDefaultColor(Color.RED);
+R3.SetDefaultColor(Color.RED);
+S3.SetDefaultColor(Color.GREEN);
+S4.SetDefaultColor(Color.RED);
+S4a.SetDefaultColor(Color.GREEN);
+S6.SetDefaultColor(Color.GREEN);
+
+def paintingStrategy = if lines == lines.points then PaintingStrategy.POINTS else if lines == lines.triangles then PaintingStrategy.TRIANGLES else if lines == lines.dashes then PaintingStrategy.DASHES else if lines == lines.horizontal then PaintingStrategy.HORIZONTAL else PaintingStrategy.SQUARES;
+
+R6.SetPaintingStrategy(paintingStrategy);
+R4.SetPaintingStrategy(paintingStrategy);
+R4a.SetPaintingStrategy(paintingStrategy);
+R3.SetPaintingStrategy(paintingStrategy);
+S3.SetPaintingStrategy(paintingStrategy);
+S4.SetPaintingStrategy(paintingStrategy);
+S4a.SetPaintingStrategy(paintingStrategy);
+S6.SetPaintingStrategy(paintingStrategy);
+
+#Bubbles to describe Pivot Levels w/o Premarket Data --------------------------------------
+def StartPlot = if ShowBubbles == yes then BubbleLocation else Double.NaN;
+
+AddChartBubble(StartPlot, R6, "Monthly R6 " + (if ShowPricesInBubbles then AsText(R6) else ""), Color.PINK,   if close > R6 then no else yes);
+AddChartBubble(StartPlot, R4, "Monthly R4 " + (if ShowPricesInBubbles then AsText(R4) else ""), Color.ORANGE,   if close > R4 then no else yes);
+AddChartBubble(StartPlot, R3, "Monthly R3 " + (if ShowPricesInBubbles then AsText(R3) else ""), Color.PINK,   if close > R3 then no else yes);
+AddChartBubble(StartPlot, S6, "Monthly S6 " + (if ShowPricesInBubbles then AsText(S6) else ""), Color.LIGHT_GREEN, if close > S6 then no else yes);
+AddChartBubble(StartPlot, S4, "Monthly S4 " + (if ShowPricesInBubbles then AsText(S4) else ""), Color.ORANGE, if close > S4 then no else yes);
+AddChartBubble(StartPlot, S3, "Monthly S3 " + (if ShowPricesInBubbles then AsText(S3) else ""), Color.LIGHT_GREEN, if close > S3 then no else yes);
+
+
+R3.HideBubble();
+R4.HideBubble();
+R4a.HideBubble();
+R6.HideBubble();
+S3.HideBubble();
+S4.HideBubble();
+S4a.HideBubble();
+S6.HideBubble();
+R3.HideTitle();
+R4.HideTitle();
+R4a.HideTitle();
+R6.HideTitle();
+S3.HideTitle();
+S4.HideTitle();
+S4a.HideTitle();
+S6.HideTitle();
+
+#Period Range Type Lable####################################################################
+#Label Colors For The Different Labels
+DefineGlobalColor("Cams Higher Range Label Color", Color.DARK_GREEN);
+DefineGlobalColor("Cams Lower Range Label Color", Color.RED);
+DefineGlobalColor("Cams Neutral Range Label Color", Color.YELLOW);
+# Get the close of two periods ago
+def closeTwoPeriodsAgo = close(period = aggregationPeriod)[2];
+
+# Get the close of the previous day
+def closePrevPeriod = close(period = aggregationPeriod)[1];
+# Period Range Type
+AddLabel(yes, if closePrevPeriod > closeTwoPeriodsAgo then "Monthly: Higher Range"
+         else if closePrevPeriod < closeTwoPeriodsAgo then "Monthly: Lower Range"
+         else "Monthly: Neutral Range",
+         if closePrevPeriod > closeTwoPeriodsAgo then GlobalColor("Cams Higher Range Label Color")
+         else if closePrevPeriod < closeTwoPeriodsAgo then GlobalColor("Cams Lower Range Label Color")
+         else GlobalColor("Cams Neutral Range Label Color"));
+
