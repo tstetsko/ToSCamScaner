@@ -131,6 +131,7 @@ plot S5 = (closeValue - range * (1.1) / 2) - 1.168 * ((closeValue - range * (1.1
 plot S6 = (closeValue - (R6 - closeValue));
 
 def hidewo = ShowCams == ShowCams."w/Only" or (ShowCams == ShowCams."Auto" and wPMD is true);
+
 R6.SetHiding(hidewo);
 R5.SetHiding(hide_s5_r5 or hidewo);
 R4.SetHiding(hidewo);
@@ -261,7 +262,10 @@ plot S4wa = gxClose - rangew * (1.098) / 2;
 plot S5w = (gxClose - rangew * (1.1) / 2) - 1.168 * ((gxClose - range * (1.1) / 4) - (gxClose - rangew * (1.1) / 2));
 plot S6w = (gxClose - (R6w - gxClose));
 
-def hidew = ShowCams == ShowCams."w/o Only" or (ShowCams == ShowCams."Auto" and !wPMD);
+def isSmallFutures = GetSymbol() == "/MNQ:XCME" or GetSymbol() == "/MES:XCME";
+def hidew = ShowCams == ShowCams."w/o Only" or (ShowCams == ShowCams."Auto" and (!wPMD or isSmallFutures));
+
+
 R6w.SetHiding(hidew);
 R5w.SetHiding(hide_s5_r5 or hidew);
 R4w.SetHiding(hidew);
