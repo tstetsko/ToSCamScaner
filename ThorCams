@@ -58,7 +58,7 @@ def bn = BarNumber();
 def h  = high;
 def l  = low;
 
-Script prior {
+script prior {
 # subscript for getting prior value of a BarNumber() defined variable
     input prior = close;
     def   priorOf = if prior != prior[1] then prior[1] else priorOf[1];
@@ -71,14 +71,15 @@ def time = GetTime();
 def rts  = RegularTradingStart(GetYYYYMMDD());
 def rte  = RegularTradingEnd(GetYYYYMMDD());
 
-def RTH = if   time crosses above rts
+def RTH = if time crosses above rts
           then bn else if time <= rts then bn else RTH[1];
 
-def globex = if   time crosses below rte
+def globex = if time crosses below rte
              then bn else globex[1];
 
 def priorRTH    = prior(RTH);
 def priorGlobex = prior(globex);
+
 def hRTH  = HighestAll(RTH);
 def hGX   = HighestAll(globex);
 def hPRTH = HighestAll(priorRTH);
@@ -101,16 +102,16 @@ def priorGBXlow = LowestAll(if   bn >= hPGX
                                        then hGX
                                        else hPGX
                             then l else na);
- 
+
 def displace = -1;
 def PDHigh = Highest(high(period = aggregationPeriod)[-displace], length);
 def PDLow = Lowest(low(period = aggregationPeriod)[-displace], length);
 def PD_Close = close(period = aggregationPeriod)[1];
 
 def tm = SecondsFromTime(00);
-Def gxClose = if tm crosses below tm[1] then close[1] else gxClose[1];
+def gxClose = if tm crosses below tm[1] then close[1] else gxClose[1];
 
-def wPMD = if (HasNoGlobeX and gxclose == PD_Close) then 0 else if gXhigh > PDHigh or gXlow < PDLow then 1 else 0;
+def wPMD = if (HasNoGlobeX and gxClose == PD_Close) then 0 else if gXhigh > PDHigh or gXlow < PDLow then 1 else 0;
 
 #WITHOUT PM DATA ----------------------------------------------------------
 
@@ -411,12 +412,12 @@ FS4.HideTitle();
 
 #Adds Clouds to PivotPoints ------------------------------------------------------------------
 
-addcloud (if hidew then R3 else R3W, if hidew then R4 else r4w, color.light_red, color.light_red);
-addcloud (if hidew then S3 else S3W,if hidew then S4 else S4W, color.light_green, color.light_green);
-addcloud (if ShowCams."Both" then R3 else double.nan, R4 , color.light_red, color.light_red);
-addcloud (if ShowCams."Both" then R3W else double.nan, R4W, color.light_red, color.light_red);
-addcloud (if ShowCams."Both" then S3 else double.nan, S4 , color.light_green, color.light_green);
-addcloud (if ShowCams."Both" then S3W else double.nan,S4W , color.light_green, color.light_green);
+AddCloud (if hidew then R3 else R3w, if hidew then R4 else R4w, Color.LIGHT_RED, Color.LIGHT_RED);
+AddCloud (if hidew then S3 else S3w, if hidew then S4 else S4w, Color.LIGHT_GREEN, Color.LIGHT_GREEN);
+AddCloud (if ShowCams."Both" then R3 else Double.NaN, R4 , Color.LIGHT_RED, Color.LIGHT_RED);
+AddCloud (if ShowCams."Both" then R3w else Double.NaN, R4w, Color.LIGHT_RED, Color.LIGHT_RED);
+AddCloud (if ShowCams."Both" then S3 else Double.NaN, S4 , Color.LIGHT_GREEN, Color.LIGHT_GREEN);
+AddCloud (if ShowCams."Both" then S3w else Double.NaN, S4w , Color.LIGHT_GREEN, Color.LIGHT_GREEN);
 
 
 
@@ -451,15 +452,15 @@ def preMarketLow = if !pretime[1] and pretime then low
   else preMarketLow[1];
 
 # Get Today's High and Low
-def todayHigh = ROUND(if IsNaN(high(period = aggregationPeriod)) then preMarketHi else high(period = aggregationPeriod),2);
-def todayLow  = ROUND(if IsNaN(low(period = aggregationPeriod)) then preMarketLow else low(period = aggregationPeriod), 2);
+def todayHigh = Round(if IsNaN(high(period = aggregationPeriod)) then preMarketHi else high(period = aggregationPeriod), 2);
+def todayLow  = Round(if IsNaN(low(period = aggregationPeriod)) then preMarketLow else low(period = aggregationPeriod), 2);
 
-def todayHighW = ROUND(MAX( if IsNaN(high(period = aggregationPeriod)) then preMarketHi else high(period = aggregationPeriod), preMarketHi), 2);
-def todayLowW  = ROUND(MIN ( if IsNaN(low(period = aggregationPeriod)) then preMarketLow else low(period = aggregationPeriod), preMarketLow), 2);
+def todayHighW = Round(Max( if IsNaN(high(period = aggregationPeriod)) then preMarketHi else high(period = aggregationPeriod), preMarketHi), 2);
+def todayLowW  = Round(Min ( if IsNaN(low(period = aggregationPeriod)) then preMarketLow else low(period = aggregationPeriod), preMarketLow), 2);
 
 #Calculate Pivot Ranges
-def pivots4RangeWith = ROUND(R4w - S4w, 2);
-def pivots4RangeWithout = ROUND(R4 - S4, 2);
+def pivots4RangeWith = Round(R4w - S4w, 2);
+def pivots4RangeWithout = Round(R4 - S4, 2);
 ##########################################################################################
 
 #Get ATR
@@ -485,9 +486,9 @@ def isWideRangeDay = if ATR <= (if wPMD then pivots4RangeWith else pivots4RangeW
 input RVOLLength = 14;
 input showRVOLInPercent = No;
 def todayVol = volume(period = aggregationPeriod);
-def averageVolume = average(volume(period = aggregationPeriod), RVOLLength);
-def rvol = ROUND(todayVol / averageVolume,2);
-def rvolPercent = ROUND(rvol * 100,2);
+def averageVolume = Average(volume(period = aggregationPeriod), RVOLLength);
+def rvol = Round(todayVol / averageVolume, 2);
+def rvolPercent = Round(rvol * 100, 2);
 
 # Display Data
 ##########################################################################################
@@ -519,12 +520,30 @@ AddLabel(yes, if closePrevPeriod > closeTwoPeriodsAgo then "Cams: Higher Range"
          else GlobalColor("Cams Neutral Range Label Color"));
 
 #ATR Label
-AddLabel(yes, "ATR(" + ATR_length + "): " + ROUND(ATR,2) + 
+AddLabel(yes, "ATR(" + ATR_length + "): " + Round(ATR, 2) + 
               " | PR: " + (if wPMD then pivots4RangeWith else pivots4RangeWithout) +
 #              " | DR: " + (if wPMD then ROUND(todayHighW - todayLowW,2) else ROUND(todayHigh - todayLow, 2)) 
-             " | DR: " + (if isPreMarket then 0 else ROUND(todayHigh - todayLow, 2)) 
+             " | DR: " + (if isPreMarket then 0 else Round(todayHigh - todayLow, 2)) 
             , GlobalColor("ATR Label Color"));
 
+AddLabel(yes, "Symbol: " + GetSymbol(), Color.CYAN);
+
+#AddLabel(yes, "highValue:" + highValue, Color.DARK_GREEN);
+#AddLabel(yes, "lowValue:" + lowValue, Color.DARK_GREEN);
+#AddLabel(yes, "closeValue:" + closeValue, Color.DARK_GREEN);
+
+#AddLabel(yes, "tm:" + tm, Color.DARK_GREEN);
+#AddLabel(yes, "tm[1]:" + tm[1], Color.DARK_GREEN);
+#AddLabel(yes, "close[1]:" + close[1], Color.DARK_GREEN);
+
+#AddLabel(yes, "gxClose[1]:" + gxClose[1], Color.DARK_GREEN);
+#AddLabel(yes, "SecondsFromTime(00)[1]:" + SecondsFromTime(00)[1], Color.DARK_GREEN);
+
+#AddLabel(yes, "close(period = aggregationPeriod)[1]:" + close(period = aggregationPeriod)[1], #Color.DARK_GREEN);
+
+#AddLabel(yes, "priorGBXhigh:" + priorGBXhigh, Color.DARK_GREEN);
+#AddLabel(yes, "priorGBXlow:" + priorGBXlow, Color.DARK_GREEN);
+#AddLabel(yes, "gxClose:" + gxClose, Color.DARK_GREEN);
 #RVOL
 #AddLabel(yes, "RVOL(" + RVOLLength + "): " + (if showRVOLInPercent then Round(rvolPercent,2) #else rvol) + (if showRVOLInPercent then "%" else ""), if rvol < 1 then GlobalColor("RVOL Label #Below 100% Color") else GlobalColor("RVOL Label At or Above 100% Color"));
 #Keep label below to troubleshoot RVOL
