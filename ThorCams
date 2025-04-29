@@ -130,7 +130,8 @@ plot S4a = closeValue - range * (1.098) / 2;
 plot S5 = (closeValue - range * (1.1) / 2) - 1.168 * ((closeValue - range * (1.1) / 4) - (closeValue - range * (1.1) / 2));
 plot S6 = (closeValue - (R6 - closeValue));
 
-def hidewo = ShowCams == ShowCams."w/Only" or (ShowCams == ShowCams."Auto" and wPMD is true);
+def isSmallFutures = GetSymbol() == "/MNQ:XCME" or GetSymbol() == "/MES:XCME";
+def hidewo = (ShowCams == ShowCams."w/Only") or (ShowCams == ShowCams."Auto" and wPMD is true and !isSmallFutures);
 
 R6.SetHiding(hidewo);
 R5.SetHiding(hide_s5_r5 or hidewo);
@@ -182,20 +183,28 @@ S6.SetPaintingStrategy(paintingStrategy);
 #Bubbles to describe Pivot Levels w/o Premarket Data --------------------------------------
 
 
-def StartPlot = if ShowBubbles == yes and ((ShowCams == ShowCams."Auto" and !wPMD is true or  aggregationPeriod != aggregationPeriod."DAY") or ShowCams == ShowCams."Both" or ShowCams == ShowCams."w/o Only") then BubbleLocation else Double.NaN;
+def showAuto = ShowCams == ShowCams."Auto";
+def showBoth = ShowCams == ShowCams."Both";
+def showWithoutOnly = ShowCams == ShowCams."w/o Only";
+def isIntraday = aggregationPeriod != aggregationPeriod."DAY";
 
-AddChartBubble(StartPlot, R6, "R6 " + (if ShowPricesInBubbles then AsText(R6) else ""), Color.PINK,   if close > R6 then no else yes);
-AddChartBubble(StartPlot and hide_s5_r5 == no, R5, "R5 " + (if ShowPricesInBubbles then AsText(R5) else ""), Color.GRAY,   if close > R5 then no else yes);
-AddChartBubble(StartPlot, R4, "R4 " + (if ShowPricesInBubbles then AsText(R4) else ""), Color.ORANGE,   if close > R4 then no else yes);
-AddChartBubble(StartPlot, R3, "R3 " + (if ShowPricesInBubbles then AsText(R3) else ""), Color.PINK,   if close > R3 then no else yes);
-AddChartBubble(StartPlot and hide_s2_r2 == no, R2, "R2 " + (if ShowPricesInBubbles then AsText(R2) else ""), Color.GRAY,   if close > R2 then no else yes);
-AddChartBubble(StartPlot and hide_s1_r1 == no, R1, "R1 " + (if ShowPricesInBubbles then AsText(R1) else ""), Color.GRAY,   if close > R1 then no else yes);
-AddChartBubble(StartPlot, S6, "S6 " + (if ShowPricesInBubbles then AsText(S6) else ""), Color.LIGHT_GREEN, if close > S6 then no else yes);
-AddChartBubble(StartPlot and hide_s5_r5 == no, S5, "S5 " + (if ShowPricesInBubbles then AsText(S5) else ""), Color.GRAY, if close > S5 then no else yes);
-AddChartBubble(StartPlot, S4, "S4 " + (if ShowPricesInBubbles then AsText(S4) else ""), Color.ORANGE, if close > S4 then no else yes);
-AddChartBubble(StartPlot, S3, "S3 " + (if ShowPricesInBubbles then AsText(S3) else ""), Color.LIGHT_GREEN, if close > S3 then no else yes);
-AddChartBubble(StartPlot and hide_s2_r2 == no, S2, "S2 " + (if ShowPricesInBubbles then AsText(S2) else ""), Color.GRAY, if close > S2 then no else yes);
-AddChartBubble(StartPlot and hide_s1_r1 == no, S1, "S1 " + (if ShowPricesInBubbles then AsText(S1) else ""), Color.GRAY, if close > S1 then no else yes);
+def autoConditionwo = showAuto and (!wPMD or isSmallFutures or isIntraday);
+def showBubble = ShowBubbles and (autoConditionwo or showBoth or showWithoutOnly);
+
+def bubbleLocationwo = if showBubble then BubbleLocation else Double.NaN;
+
+AddChartBubble(bubbleLocationwo, R6, "R6 " + (if ShowPricesInBubbles then AsText(R6) else ""), Color.PINK,   if close > R6 then no else yes);
+AddChartBubble(bubbleLocationwo and hide_s5_r5 == no, R5, "R5 " + (if ShowPricesInBubbles then AsText(R5) else ""), Color.GRAY,   if close > R5 then no else yes);
+AddChartBubble(bubbleLocationwo, R4, "R4 " + (if ShowPricesInBubbles then AsText(R4) else ""), Color.ORANGE,   if close > R4 then no else yes);
+AddChartBubble(bubbleLocationwo, R3, "R3 " + (if ShowPricesInBubbles then AsText(R3) else ""), Color.PINK,   if close > R3 then no else yes);
+AddChartBubble(bubbleLocationwo and hide_s2_r2 == no, R2, "R2 " + (if ShowPricesInBubbles then AsText(R2) else ""), Color.GRAY,   if close > R2 then no else yes);
+AddChartBubble(bubbleLocationwo and hide_s1_r1 == no, R1, "R1 " + (if ShowPricesInBubbles then AsText(R1) else ""), Color.GRAY,   if close > R1 then no else yes);
+AddChartBubble(bubbleLocationwo, S6, "S6 " + (if ShowPricesInBubbles then AsText(S6) else ""), Color.LIGHT_GREEN, if close > S6 then no else yes);
+AddChartBubble(bubbleLocationwo and hide_s5_r5 == no, S5, "S5 " + (if ShowPricesInBubbles then AsText(S5) else ""), Color.GRAY, if close > S5 then no else yes);
+AddChartBubble(bubbleLocationwo, S4, "S4 " + (if ShowPricesInBubbles then AsText(S4) else ""), Color.ORANGE, if close > S4 then no else yes);
+AddChartBubble(bubbleLocationwo, S3, "S3 " + (if ShowPricesInBubbles then AsText(S3) else ""), Color.LIGHT_GREEN, if close > S3 then no else yes);
+AddChartBubble(bubbleLocationwo and hide_s2_r2 == no, S2, "S2 " + (if ShowPricesInBubbles then AsText(S2) else ""), Color.GRAY, if close > S2 then no else yes);
+AddChartBubble(bubbleLocationwo and hide_s1_r1 == no, S1, "S1 " + (if ShowPricesInBubbles then AsText(S1) else ""), Color.GRAY, if close > S1 then no else yes);
 
 R1.HideBubble();
 R2.HideBubble();
@@ -262,9 +271,7 @@ plot S4wa = gxClose - rangew * (1.098) / 2;
 plot S5w = (gxClose - rangew * (1.1) / 2) - 1.168 * ((gxClose - range * (1.1) / 4) - (gxClose - rangew * (1.1) / 2));
 plot S6w = (gxClose - (R6w - gxClose));
 
-def isSmallFutures = GetSymbol() == "/MNQ:XCME" or GetSymbol() == "/MES:XCME";
 def hidew = (ShowCams == ShowCams."w/o Only") or (ShowCams == ShowCams."Auto" and (!wPMD or isSmallFutures));
-
 
 R6w.SetHiding(hidew);
 R5w.SetHiding(hide_s5_r5 or hidew);
@@ -313,21 +320,26 @@ S6w.SetPaintingStrategy(paintingStrategy);
 
 #Bubbles to describe Pivot Levels w/Premarket Data ------------------------------------
 
-def StartPlot2 = if ShowBubbles == yes and ((ShowCams == ShowCams."Auto" and wPMD) or ShowCams == ShowCams."Both" or ShowCams == ShowCams."w/Only") then BubbleLocation else Double.NaN;
+def showWithOnly = ShowCams == ShowCams."w/Only";
 
-AddChartBubble(StartPlot2, R6w, "R6w " + (if ShowPricesInBubbles then AsText(R6w) else ""), Color.PINK,   if close > R6w then no else yes);
-AddChartBubble(StartPlot2 and hide_s5_r5 == no, R5w, "R5w " + (if ShowPricesInBubbles then AsText(R5w) else ""), Color.GRAY,   if close > R5w then no else yes);
-AddChartBubble(StartPlot2, R4w, "R4w " + (if ShowPricesInBubbles then AsText(R4w) else ""), Color.ORANGE,   if close > R4w then no else yes);
-AddChartBubble(StartPlot2, R3w, "R3w " + (if ShowPricesInBubbles then AsText(R3w) else ""), Color.PINK,   if close > R3w then no else yes);
-AddChartBubble(StartPlot2 and hide_s2_r2 == no, R2w, "R2w " + (if ShowPricesInBubbles then AsText(R2w) else ""), Color.GRAY,   if close > R2w then no else yes);
-AddChartBubble(StartPlot2 and hide_s1_r1 == no, R1w, "R1w " + (if ShowPricesInBubbles then AsText(R1w) else ""), Color.GRAY,   if close > R1w then no else yes);
+def autoConditionw = showAuto and wPMD and !isSmallFutures;
+def showBubblew = ShowBubbles and (autoConditionw or showBoth or showWithOnly);
 
-AddChartBubble(StartPlot2, S6w, "S6w " + (if ShowPricesInBubbles then AsText(S6w) else ""), Color.LIGHT_GREEN, if close > S6w then no else yes);
-AddChartBubble(StartPlot2 and hide_s5_r5 == no, S5w, "S5w " + (if ShowPricesInBubbles then AsText(S5w) else ""), Color.GRAY, if close > S5w then no else yes);
-AddChartBubble(StartPlot2, S4w, "S4w " + (if ShowPricesInBubbles then AsText(S4w) else ""), Color.ORANGE, if close > S4w then no else yes);
-AddChartBubble(StartPlot2, S3w, "S3w " + (if ShowPricesInBubbles then AsText(S3w) else ""), Color.LIGHT_GREEN, if close > S3w then no else yes);
-AddChartBubble(StartPlot2 and hide_s2_r2 == no, S2w, "S2w " + (if ShowPricesInBubbles then AsText(S2w) else ""), Color.GRAY, if close > S2w then no else yes);
-AddChartBubble(StartPlot2 and hide_s1_r1 == no, S1w, "S1w " + (if ShowPricesInBubbles then AsText(S1w) else ""), Color.GRAY, if close > S1w then no else yes);
+def bubbleLocationw = if showBubblew then BubbleLocation else Double.NaN;
+
+AddChartBubble(bubbleLocationw, R6w, "R6w " + (if ShowPricesInBubbles then AsText(R6w) else ""), Color.PINK,   if close > R6w then no else yes);
+AddChartBubble(bubbleLocationw and hide_s5_r5 == no, R5w, "R5w " + (if ShowPricesInBubbles then AsText(R5w) else ""), Color.GRAY,   if close > R5w then no else yes);
+AddChartBubble(bubbleLocationw, R4w, "R4w " + (if ShowPricesInBubbles then AsText(R4w) else ""), Color.ORANGE,   if close > R4w then no else yes);
+AddChartBubble(bubbleLocationw, R3w, "R3w " + (if ShowPricesInBubbles then AsText(R3w) else ""), Color.PINK,   if close > R3w then no else yes);
+AddChartBubble(bubbleLocationw and hide_s2_r2 == no, R2w, "R2w " + (if ShowPricesInBubbles then AsText(R2w) else ""), Color.GRAY,   if close > R2w then no else yes);
+AddChartBubble(bubbleLocationw and hide_s1_r1 == no, R1w, "R1w " + (if ShowPricesInBubbles then AsText(R1w) else ""), Color.GRAY,   if close > R1w then no else yes);
+
+AddChartBubble(bubbleLocationw, S6w, "S6w " + (if ShowPricesInBubbles then AsText(S6w) else ""), Color.LIGHT_GREEN, if close > S6w then no else yes);
+AddChartBubble(bubbleLocationw and hide_s5_r5 == no, S5w, "S5w " + (if ShowPricesInBubbles then AsText(S5w) else ""), Color.GRAY, if close > S5w then no else yes);
+AddChartBubble(bubbleLocationw, S4w, "S4w " + (if ShowPricesInBubbles then AsText(S4w) else ""), Color.ORANGE, if close > S4w then no else yes);
+AddChartBubble(bubbleLocationw, S3w, "S3w " + (if ShowPricesInBubbles then AsText(S3w) else ""), Color.LIGHT_GREEN, if close > S3w then no else yes);
+AddChartBubble(bubbleLocationw and hide_s2_r2 == no, S2w, "S2w " + (if ShowPricesInBubbles then AsText(S2w) else ""), Color.GRAY, if close > S2w then no else yes);
+AddChartBubble(bubbleLocationw and hide_s1_r1 == no, S1w, "S1w " + (if ShowPricesInBubbles then AsText(S1w) else ""), Color.GRAY, if close > S1w then no else yes);
 
 R1w.HideBubble();
 R2w.HideBubble();
@@ -394,13 +406,13 @@ CP.SetPaintingStrategy(paintingStrategy);
 FS3.SetPaintingStrategy(paintingStrategy);
 FS4.SetPaintingStrategy(paintingStrategy);
 
-def StartPlot3 = if ShowBubbles == yes and hide_Floor_Pivots == no then BubbleLocation else Double.NaN;
+def bubbleLocationFloor = if ShowBubbles == yes and hide_Floor_Pivots == no then BubbleLocation else Double.NaN;
 
-AddChartBubble(StartPlot3, CP, "CP " + (if ShowPricesInBubbles then AsText(CP) else ""), Color.YELLOW,   if close > CP then no else yes);
-AddChartBubble(StartPlot3, FR4, "FR4 " + (if ShowPricesInBubbles then AsText(FR4) else ""), (CreateColor(102, 0, 204)), if close > FR4 then no else yes);
-AddChartBubble(StartPlot3, FR3, "FR3 " + (if ShowPricesInBubbles then AsText(FR3) else ""), Color.MAGENTA,   if close > FR3 then no else yes);
-AddChartBubble(StartPlot3, FS4, "FS4 " + (if ShowPricesInBubbles then AsText(FS4) else ""), (CreateColor(102, 0, 204)), if close > FS4 then no else yes);
-AddChartBubble(StartPlot3, FS3, "FS3 " + (if ShowPricesInBubbles then AsText(FS3) else ""), Color.MAGENTA, if close > FS3 then no else yes);
+AddChartBubble(bubbleLocationFloor, CP, "CP " + (if ShowPricesInBubbles then AsText(CP) else ""), Color.YELLOW,   if close > CP then no else yes);
+AddChartBubble(bubbleLocationFloor, FR4, "FR4 " + (if ShowPricesInBubbles then AsText(FR4) else ""), (CreateColor(102, 0, 204)), if close > FR4 then no else yes);
+AddChartBubble(bubbleLocationFloor, FR3, "FR3 " + (if ShowPricesInBubbles then AsText(FR3) else ""), Color.MAGENTA,   if close > FR3 then no else yes);
+AddChartBubble(bubbleLocationFloor, FS4, "FS4 " + (if ShowPricesInBubbles then AsText(FS4) else ""), (CreateColor(102, 0, 204)), if close > FS4 then no else yes);
+AddChartBubble(bubbleLocationFloor, FS3, "FS3 " + (if ShowPricesInBubbles then AsText(FS3) else ""), Color.MAGENTA, if close > FS3 then no else yes);
 
 FR4.HideBubble();
 FR3.HideBubble();
@@ -529,8 +541,6 @@ AddLabel(yes, "ATR(" + ATR_length + "): " + Round(ATR, 2) +
 #              " | DR: " + (if wPMD then ROUND(todayHighW - todayLowW,2) else ROUND(todayHigh - todayLow, 2)) 
              " | DR: " + (if isPreMarket then 0 else Round(todayHigh - todayLow, 2)) 
             , GlobalColor("ATR Label Color"));
-
-AddLabel(yes, "Symbol: " + GetSymbol(), Color.CYAN);
 
 #AddLabel(yes, "highValue:" + highValue, Color.DARK_GREEN);
 #AddLabel(yes, "lowValue:" + lowValue, Color.DARK_GREEN);
