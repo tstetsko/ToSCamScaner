@@ -1,0 +1,83 @@
+declare upper;
+
+input show1m = yes;
+input show5m = yes;
+input show15m = yes;
+input show30m = yes;
+input show60m = yes;
+
+def t = SecondsFromTime(0930); # Market open reference
+
+# Time in minutes from open
+def minFromOpen = Floor(t / 60);
+
+# Session start
+def isNewDay = GetDay() != GetDay()[1];
+
+# Reset conditions
+def dayBarCount = if isNewDay then 0 else dayBarCount[1] + 1;
+
+# --- 1 Minute Range ---
+def range1Start = 1;
+def is1mReady = dayBarCount == range1Start;
+def range1High = if is1mReady then high else range1High[1];
+def range1Low  = if is1mReady then low  else range1Low[1];
+def range1Broken = if !is1mReady then 0 else if close > range1High or close < range1Low then 1 else range1Broken[1];
+
+plot High1 = if show1m and is1mReady and !range1Broken then range1High else Double.NaN;
+plot Low1  = if show1m and is1mReady and !range1Broken then range1Low  else Double.NaN;
+
+High1.SetDefaultColor(Color.BLUE);
+Low1.SetDefaultColor(Color.BLUE);
+
+# --- 5 Minute Range ---
+def range5Start = 5;
+def is5mReady = dayBarCount == range5Start;
+def range5High = if is5mReady then Highest(high, 5) else range5High[1];
+def range5Low  = if is5mReady then Lowest(low, 5)   else range5Low[1];
+def range5Broken = if !is5mReady then 0 else if close > range5High or close < range5Low then 1 else range5Broken[1];
+
+plot High5 = if show5m and is5mReady and !range5Broken then range5High else Double.NaN;
+plot Low5  = if show5m and is5mReady and !range5Broken then range5Low  else Double.NaN;
+
+High5.SetDefaultColor(Color.GREEN);
+Low5.SetDefaultColor(Color.GREEN);
+
+# --- 15 Minute Range ---
+def range15Start = 15;
+def is15mReady = dayBarCount == range15Start;
+def range15High = if is15mReady then Highest(high, 15) else range15High[1];
+def range15Low  = if is15mReady then Lowest(low, 15)   else range15Low[1];
+def range15Broken = if !is15mReady then 0 else if close > range15High or close < range15Low then 1 else range15Broken[1];
+
+plot High15 = if show15m and is15mReady and !range15Broken then range15High else Double.NaN;
+plot Low15  = if show15m and is15mReady and !range15Broken then range15Low  else Double.NaN;
+
+High15.SetDefaultColor(Color.RED);
+Low15.SetDefaultColor(Color.RED);
+
+# --- 30 Minute Range ---
+def range30Start = 30;
+def is30mReady = dayBarCount == range30Start;
+def range30High = if is30mReady then Highest(high, 30) else range30High[1];
+def range30Low  = if is30mReady then Lowest(low, 30)   else range30Low[1];
+def range30Broken = if !is30mReady then 0 else if close > range30High or close < range30Low then 1 else range30Broken[1];
+
+plot High30 = if show30m and is30mReady and !range30Broken then range30High else Double.NaN;
+plot Low30  = if show30m and is30mReady and !range30Broken then range30Low  else Double.NaN;
+
+High30.SetDefaultColor(Color.BLUE);
+Low30.SetDefaultColor(Color.BLUE);
+
+# --- 60 Minute Range ---
+def range60Start = 60;
+def is60mReady = dayBarCount == range60Start;
+def range60High = if is60mReady then Highest(high, 60) else range60High[1];
+def range60Low  = if is60mReady then Lowest(low, 60)   else range60Low[1];
+def range60Broken = if !is60mReady then 0 else if close > range60High or close < range60Low then 1 else range60Broken[1];
+
+plot High60 = if show60m and is60mReady and !range60Broken then range60High else Double.NaN;
+plot Low60  = if show60m and is60mReady and !range60Broken then range60Low  else Double.NaN;
+
+High60.SetDefaultColor(Color.GREEN);
+Low60.SetDefaultColor(Color.GREEN);
