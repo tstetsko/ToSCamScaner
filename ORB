@@ -1,5 +1,3 @@
-declare upper;
-
 input show1m  = yes;
 input show5m  = yes;
 input show15m = yes;
@@ -10,39 +8,49 @@ input show60m = yes;
 def secondsFromOpen = SecondsFromTime(0929);
 def minFromOpen     = Floor(secondsFromOpen / 60);
 
-# === 1-Minute Open Range Logic ===
-def range1Start  = 1;
-def is1mReady    = minFromOpen == range1Start;
+# === Generic Range Logic Function ===
+script OpenRange {
+    input rangeStartMins = 0;
+    input minFromOpen    = 0;
+    input high           = 0;
+    input low            = 0;
+    input close          = 0;
 
-def range1High = if BarNumber() < 1 then Double.NaN
-                 else if is1mReady then high
-                 else range1High[1];
+    def isReady      = minFromOpen == rangeStartMins;
+    def highLevel    = if BarNumber() < 1 then Double.NaN
+                       else if isReady then high
+                       else highLevel[1];
 
-def range1Low  = if BarNumber() < 1 then Double.NaN
-                 else if is1mReady then low
-                 else range1Low[1];
+    def lowLevel     = if BarNumber() < 1 then Double.NaN
+                       else if isReady then low
+                       else lowLevel[1];
 
-def range1Broken = if minFromOpen < range1Start then 0
-                   else if close > range1High or close < range1Low then 1
-                   else range1Broken[1];
+    def broken       = if minFromOpen < rangeStartMins then 0
+                       else if close > highLevel or close < lowLevel then 1
+                       else broken[1];
 
-# Track first break
-def wasBroken     = range1Broken[1];
-def firstBreak    = range1Broken and !wasBroken;
-def notYetBroken  = !range1Broken and !wasBroken;
+    def wasBroken    = broken[1];
+    def firstBreak   = broken and !wasBroken;
+    def notBrokenYet = !broken and !wasBroken;
 
-# Record bar count at time of break
-def plotRangeBarsNumber = if firstBreak then minFromOpen + 1
-                          else if notYetBroken then minFromOpen
-                          else plotRangeBarsNumber[1];
+    def rangeBarsEnd = if firstBreak then minFromOpen + 1
+                       else if notBrokenYet then minFromOpen
+                       else rangeBarsEnd[1];
 
-def isVisible1 = minFromOpen >= range1Start and minFromOpen <= plotRangeBarsNumber;
+    def visible      = minFromOpen >= rangeStartMins and minFromOpen <= rangeBarsEnd;
 
-# === Plotting ===
-plot High1 = if isVisible1 and show1m then range1High else Double.NaN;
-plot Low1  = if isVisible1 and show1m then range1Low  else Double.NaN;
+    plot HighPlot    = if visible then highLevel else Double.NaN;
+    plot LowPlot     = if visible then lowLevel  else Double.NaN;
+}
 
-High1.SetDefaultColor(Color.BLUE);
-Low1.SetDefaultColor(Color.BLUE);
-High1.SetLineWeight(2);
-Low1.SetLineWeight(2);
+# === 1 Minute Range ===
+def start1m = 1;
+def range1High  = OpenRange(start1m, minFromOpen, high, low, close).HighPlot;
+def range1Low  = OpenRange(start1m, minFromOpen, high, low, close).LowPlot;
+plot High1  = if show1m then range1High else Double.NaN;
+plot Low1   = if show1m then range1Low  else Double.NaN;
+
+# === Styling ===
+High1.SetDefaultColor(Color.BLACK);   High1.SetLineWeight(2);
+Low1.SetDefaultColor(Color.BLACK);    Low1.SetLineWeight(2);
+
