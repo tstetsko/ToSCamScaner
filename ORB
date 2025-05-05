@@ -11,22 +11,28 @@ def minFromOpen     = Floor(secondsFromOpen / 60);
 # === Generic Range Logic Function ===
 script OpenRange {
     input rangeStartMins = 0;
+    input rangeDuration  = 1;
     input minFromOpen    = 0;
     input high           = 0;
     input low            = 0;
     input close          = 0;
 
-    def isReady      = minFromOpen == rangeStartMins;
-    def highLevel    = if BarNumber() < 1 then Double.NaN
-                       else if isReady then high
-                       else highLevel[1];
+    def inRange      = minFromOpen >= rangeStartMins and minFromOpen < (rangeStartMins + rangeDuration);
+    def rangeComplete = minFromOpen == (rangeStartMins + rangeDuration);
+    def isAfterRange  = minFromOpen >= (rangeStartMins + rangeDuration);
 
-    def lowLevel     = if BarNumber() < 1 then Double.NaN
-                       else if isReady then low
-                       else lowLevel[1];
+    def rangeHigh    = if inRange then Max(high, rangeHigh[1])
+                       else if rangeComplete then rangeHigh[1]
+                       else if BarNumber() == 1 then Double.NaN
+                       else rangeHigh[1];
 
-    def broken       = if minFromOpen < rangeStartMins then 0
-                       else if close > highLevel or close < lowLevel then 1
+    def rangeLow     = if inRange then Min(low, rangeLow[1])
+                       else if rangeComplete then rangeLow[1]
+                       else if BarNumber() == 1 then Double.NaN
+                       else rangeLow[1];
+
+    def broken       = if !isAfterRange then 0
+                       else if close > rangeHigh or close < rangeLow then 1
                        else broken[1];
 
     def wasBroken    = broken[1];
@@ -39,18 +45,28 @@ script OpenRange {
 
     def visible      = minFromOpen >= rangeStartMins and minFromOpen <= rangeBarsEnd;
 
-    plot HighPlot    = if visible then highLevel else Double.NaN;
-    plot LowPlot     = if visible then lowLevel  else Double.NaN;
+    plot HighPlot    = if visible then rangeHigh else Double.NaN;
+    plot LowPlot     = if visible then rangeLow  else Double.NaN;
 }
 
-# === 1 Minute Range ===
-def start1m = 1;
-def range1High  = OpenRange(start1m, minFromOpen, high, low, close).HighPlot;
-def range1Low  = OpenRange(start1m, minFromOpen, high, low, close).LowPlot;
+# 1 Minute Range (9:30 - 9:31)
+def range1High = OpenRange(1, 1, minFromOpen, high, low, close).HighPlot;
+def range1Low  = OpenRange(1, 1, minFromOpen, high, low, close).LowPlot;
+
 plot High1  = if show1m then range1High else Double.NaN;
 plot Low1   = if show1m then range1Low  else Double.NaN;
+
+# 5 Minute Range (9:30 - 9:35)
+def range5High = OpenRange(1, 5, minFromOpen, high, low, close).HighPlot;
+def range5Low  = OpenRange(1, 5, minFromOpen, high, low, close).LowPlot;
+
+plot High5 = if show5m then range5High else Double.NaN;
+plot Low5  = if show5m then range5Low  else Double.NaN;
 
 # === Styling ===
 High1.SetDefaultColor(Color.BLACK);   High1.SetLineWeight(2);
 Low1.SetDefaultColor(Color.BLACK);    Low1.SetLineWeight(2);
+
+High5.SetDefaultColor(Color.BLUE);    High5.SetLineWeight(2);
+Low5.SetDefaultColor(Color.BLUE);     Low5.SetLineWeight(2);
 
