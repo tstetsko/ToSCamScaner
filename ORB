@@ -1,3 +1,6 @@
+#
+# Copyright (C) 2025, Taras Stetsko tstetsko@gmail.com. 
+#
 input show1m  = yes;
 input show5m  = yes;
 input show15m = yes;
@@ -63,13 +66,39 @@ def range5Low  = OpenRange(5, minFromOpen, high, low, close).LowPlot;
 plot High5 = if show5m then range5High else Double.NaN;
 plot Low5  = if show5m then range5Low  else Double.NaN;
 
-# === Styling ===
-High1.SetDefaultColor(Color.BLACK);
-High1.SetLineWeight(2);
-Low1.SetDefaultColor(Color.BLACK);
-Low1.SetLineWeight(2);
+# 15 Minute Range (9:30 - 9:45)
+def range15High = OpenRange(15, minFromOpen, high, low, close).HighPlot;
+def range15Low  = OpenRange(15, minFromOpen, high, low, close).LowPlot;
 
-High5.SetDefaultColor(Color.BLUE);
-High5.SetLineWeight(2);
-Low5.SetDefaultColor(Color.BLUE);
-Low5.SetLineWeight(2);
+plot High15 = if show15m then range15High else Double.NaN;
+plot Low15  = if show15m then range15Low  else Double.NaN;
+
+# 30 Minute Range (9:30 - 10:00)
+def range30High = OpenRange(30, minFromOpen, high, low, close).HighPlot;
+def range30Low  = OpenRange(30, minFromOpen, high, low, close).LowPlot;
+
+plot High30 = if show30m then range30High else Double.NaN;
+plot Low30  = if show30m then range30Low  else Double.NaN;
+
+# 60 Minute Range (9:30 - 10:30)
+def range60High = OpenRange(60, minFromOpen, high, low, close).HighPlot;
+def range60Low  = OpenRange(60, minFromOpen, high, low, close).LowPlot;
+
+plot High60 = if show60m then range60High else Double.NaN;
+plot Low60  = if show60m then range60Low  else Double.NaN;
+
+# === Styling ===
+High1.SetDefaultColor(Color.BLACK);    High1.SetLineWeight(2);
+Low1.SetDefaultColor(Color.BLACK);     Low1.SetLineWeight(2);
+
+High5.SetDefaultColor(Color.BLUE);     High5.SetLineWeight(2);
+Low5.SetDefaultColor(Color.BLUE);      Low5.SetLineWeight(2);
+
+High15.SetDefaultColor(Color.MAGENTA); High15.SetLineWeight(2);
+Low15.SetDefaultColor(Color.MAGENTA);  Low15.SetLineWeight(2);
+
+High30.SetDefaultColor(Color.BLACK);   High30.SetLineWeight(2);
+Low30.SetDefaultColor(Color.BLACK);    Low30.SetLineWeight(2);
+
+High60.SetDefaultColor(Color.BLUE);    High60.SetLineWeight(2);
+Low60.SetDefaultColor(Color.BLUE);     Low60.SetLineWeight(2);
