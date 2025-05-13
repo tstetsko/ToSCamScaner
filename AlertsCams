@@ -1,0 +1,31 @@
+def R4 = ThorsCams()."R4"; 
+def R4Offset = R4 - 0.2;
+plot condition = high crosses above R4Offset;
+
+def R4w = ThorsCams()."R4w"; 
+def R4wOffset = R4w - 0.2;
+plot condition = high crosses above R4wOffset;
+
+def R3w = ThorsCams()."R3w"; 
+def R3wOffset = R3w - 0.2;
+plot condition = high crosses above R3wOffset;
+
+def R3 = ThorsCams()."R3"; 
+def R3Offset = R3 - 0.2;
+plot condition = high crosses above R3Offset;
+
+def S3w = ThorsCams()."S3w"; 
+def S3wOffset = S3w + 0.2;
+plot condition = low crosses below S3wOffset;
+
+def S3 = ThorsCams()."S3"; 
+def S3Offset = S3 + 0.2;
+plot condition = low crosses below S3Offset;
+
+def S4w = ThorsCams()."S4w"; 
+def S4wOffset = S4w + 0.2;
+plot condition = low crosses below S4wOffset;
+
+def S4 = ThorsCams()."S4"; 
+def S4Offset = S4 + 0.2;
+plot condition = low crosses below S4Offset;
